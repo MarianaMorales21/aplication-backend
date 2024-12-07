@@ -85,7 +85,7 @@ export const data = {
   users: [
     {
       id: "1",
-      name: "Mariana",
+      name: "Mariana Morales",
       username: "mariana12",
       email: "park635-th@huskrm.com",
       role: "1",
@@ -97,7 +97,7 @@ export const data = {
     },
     {
       id: "2",
-      name: "Adrian",
+      name: "Adrian Vergel",
       username: "adrian123",
       email: "marianamorales2110@gmail.com",
       role: "2",
@@ -109,7 +109,7 @@ export const data = {
     },
     {
       id: "3",
-      name: "Marta",
+      name: "Marta Morantes",
       email: "pa@huskrm.com",
       role: "1",
       status: "Active",
@@ -121,7 +121,7 @@ export const data = {
     },
     {
       id: "4",
-      name: "Ricardo ",
+      name: "Ricardo Colmenares",
       email: "ricar2110@gmail.com",
       role: "2",
       status: "Active",
@@ -135,7 +135,7 @@ export const data = {
       id: "5",
       name: "Jose Andres",
       email: "jose12@gmail.com",
-      role: "2",
+      role: "1",
       status: "Active",
       password: "12345",
       address: "Tariba",
@@ -160,8 +160,8 @@ export const data = {
   ],
   driver: [
     {
-      id: "e035D",
-      user_id: "e035",
+      id: "1",
+      user_id: "1",
       limitations: "Cardiology",
       date_of_issue: "2024-10-27",
       expiration_date: "2024-11-24",
@@ -169,8 +169,8 @@ export const data = {
       grade_license: "Quinta",
     },
     {
-      id: "765cD",
-      user_id: "765c",
+      id: "2",
+      user_id: "3",
       limitations: "Spectacles",
       date_of_issue: "2024-11-06",
       expiration_date: "2024-12-07",

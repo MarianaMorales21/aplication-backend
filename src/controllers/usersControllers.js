@@ -1,34 +1,32 @@
 import { data } from "../data.js";
 
 export const getUsers = async (req, res) => {
-    const usuarios = data.users; 
-    const roles = data.role;
+    const user = data.users; 
+    const role = data.role;
 
-    const usuariosConRoles = usuarios.map(usuario => {
-        const rol = roles.find(r => r.id === usuario.role); 
-        return { ...usuario, role: rol ? rol.name : 'Rol no encontrado' };
+    const usersRole = user.map(user => {
+        const rol = role.find(r => r.id === user.role); 
+        return { ...user, role: rol ? rol.name : 'Role not found' };
     });
 
-    res.json(usuariosConRoles);
+    res.json(usersRole);
 }
-
 
 export const getUser  = async (req, res) => {
     const { id } = req.params; 
-    const usuarios = data.users; 
+    const users = data.users; 
     const roles = data.role;
 
-    const usuario = usuarios.find(u => u.id === id); 
-    if (!usuario) {
+    const user = users.find(u => u.id === id); 
+    if (!user) {
         return res.status(404).json({ message: "User  not found" });
     }
 
-    const rol = roles.find(r => r.id === usuario.role); 
-    const usuarioConRol = { ...usuario, role: rol ? rol.name : 'Rol no encontrado' }; 
+    const rol = roles.find(r => r.id === user.role); 
+    const userWithRole = { ...user, role: rol ? rol.name : 'Role not found' }; 
 
-    res.json(usuarioConRol); 
+    res.json(userWithRole); 
 }
-
 
 export const createUser  = async (req, res) => {
     try {
@@ -40,7 +38,7 @@ export const createUser  = async (req, res) => {
 
         const rol = data.role.find(r => r.id === userData.role); 
         if (!rol) {
-            return res.status(400).json({ message: "Rol no encontrado" });
+            return res.status(400).json({ message: "Role not found" });
         }
 
         const newUser  = {
