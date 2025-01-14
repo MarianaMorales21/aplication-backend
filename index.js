@@ -5,7 +5,8 @@ import morgan from "morgan";
 import driversRoutes from "./src/routes/driversRoutes.js"
 import clientRoutes from "./src/routes/clientRoutes.js"
 import flotaRoutes from "./src/routes/flotaRoutes.js"
-import authRoutes from "./src/routes/authRoutes.js" 
+import authRoutes from "./src/routes/authRoutes.js"
+import dashboardRoutes from "./src/routes/authRoutes.js"
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use(driversRoutes);
 app.use(clientRoutes);
 app.use(flotaRoutes);
 app.use(authRoutes);
+app.use(dashboardRoutes);
 app.listen(port);
+
 
 console.log("Server on port", port);

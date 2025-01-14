@@ -1,56 +1,68 @@
-import { data } from "../data.js";
+import { driverModel } from '../models/driversModel.js';
+
 
 export const getDrivers = async (req, res) => {
-    const users = data.users; 
-    const drivers = data.driver;
-
-    const userDrivers = drivers.map(driver => {
-        const user = users.find(r => r.id === driver.user_id); 
-        return { ...driver, user_id: user ? user.name : 'User  not found' };
-    });
-
-    res.json(userDrivers);
-}
-
-export const getDriver  = async (req, res) => {
-    const { id } = req.params; 
-    const users = data.users; 
-    const drivers = data.driver;
-
-    const driver = drivers.find(u => u.id === id); 
-    if (!driver) {
-        return res.status(404).json({ message: "User  not found" });
+    try {
+        const drivers = await driverModel.getDriversModel();
+        res.json(drivers);
+    } catch (error) {
+        console.error('Error fetching drivers:', error);
+        res.status(500).json({ message: 'Error fetching drivers' });
     }
+};
 
-    const user = users.find(r => r.id === driver.user_id); 
-    const userDriver = { ...driver, user_id: user ? user.name : 'User  not found' }; 
 
-    res.json(userDriver); 
-}
+export const getDriver = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const driver = await driverModel.getDriverModel({ id });
+        if (!driver || driver.length === 0) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+        res.json(driver[0]);
+    } catch (error) {
+        console.error('Error fetching driver:', error);
+        res.status(500).json({ message: 'Error fetching driver' });
+    }
+};
 
 export const createDriver = async (req, res) => {
+    const database = req.body;
     try {
-        const driverData = req.body; 
-
-        const user = data.users.find(r => r.id === driverData.user_id); 
-        if (!user) {
-            return res.status(400).json({ message: "User  not found" });
-        }
-
-        const newDriver = {
-            id: (data.driver.length + 1).toString(), 
-            user_id: driverData.user_id,
-            limitations: driverData.limitations,
-            date_of_issue: driverData.date_of_issue,
-            expiration_date: driverData.expiration_date,
-            sex: driverData.sex,
-            grade_license: driverData.grade_license
-        };
-
-        data.driver.push(newDriver); 
-        return res.status(201).json(newDriver); 
+        const newDriver = await driverModel.createDriverModel(database);
+        res.status(201).json(newDriver[0]);
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error('Error creating driver:', error);
+        res.status(500).json({ message: 'Error creating driver' });
     }
-}
+};
+
+export const deleteDriver = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deletedDriver = await driverModel.deleteDriverModel({ id });
+        if (!deletedDriver || deletedDriver.length === 0) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+        res.status(200).json({ message: 'Driver  successfully deleted' });
+    } catch (error) {
+        console.error('Error deleting driver:', error);
+        res.status(500).json({ message: 'Error deleting driver' });
+    }
+};
+
+
+export const updateDriver = async (req, res) => {
+    const { id } = req.params;
+    const database = req.body;
+    try {
+        const updatedDriver = await driverModel.updateDriverModel(id, database);
+        if (!updatedDriver || updatedDriver.length === 0) {
+            return res.status(404).json({ message: 'Driver not found' });
+        }
+        res.json(updatedDriver[0]);
+    } catch (error) {
+        console.error('Error updating driver:', error);
+        res.status(500).json({ message: 'Error updating driver' });
+    }
+};

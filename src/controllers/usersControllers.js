@@ -1,63 +1,65 @@
-import { data } from "../data.js";
+import { userModel } from '../models/userModel.js';
 
 export const getUsers = async (req, res) => {
-    const user = data.users; 
-    const role = data.role;
-
-    const usersRole = user.map(user => {
-        const rol = role.find(r => r.id === user.role); 
-        return { ...user, role: rol ? rol.name : 'Role not found' };
-    });
-
-    res.json(usersRole);
-}
-
-export const getUser  = async (req, res) => {
-    const { id } = req.params; 
-    const users = data.users; 
-    const roles = data.role;
-
-    const user = users.find(u => u.id === id); 
-    if (!user) {
-        return res.status(404).json({ message: "User  not found" });
-    }
-
-    const rol = roles.find(r => r.id === user.role); 
-    const userWithRole = { ...user, role: rol ? rol.name : 'Role not found' }; 
-
-    res.json(userWithRole); 
-}
-
-export const createUser  = async (req, res) => {
     try {
-        const userData = req.body; 
-        const existingUser  = data.users.find(u => u.email === userData.email); 
-        if (existingUser ) {
-            return res.status(409).json({ message: "Email already exists" });
-        }
-
-        const rol = data.role.find(r => r.id === userData.role); 
-        if (!rol) {
-            return res.status(400).json({ message: "Role not found" });
-        }
-
-        const newUser  = {
-            id: (data.users.length + 1).toString(), 
-            name: userData.name,
-            username: userData.username,
-            email: userData.email,
-            role: userData.role,
-            status: "Active", 
-            password: userData.password,
-            address: userData.address,
-            phone: userData.phone,
-            dni: userData.dni,
-        };
-
-        data.users.push(newUser ); 
-        return res.status(201).json(newUser ); 
+        const users = await userModel.getUsersModel();
+        res.json(users);
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Error fetching users' });
     }
-}
+};
+
+export const getUser = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const user = await userModel.getUserModel({ id });
+        if (!user) {
+            return res.status(404).json({ message: 'User  not found' });
+        }
+        res.json(user);
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ message: 'Error fetching user' });
+    }
+};
+
+export const createUser = async (req, res) => {
+    const database = req.body;
+    try {
+        const newUser = await userModel.createUserModel(database);
+        res.status(201).json(newUser);
+    } catch (error) {
+        console.error('Error creating user:', error);
+        res.status(500).json({ message: 'Error creating user' });
+    }
+};
+
+export const deleteUsers = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deletedUser = await userModel.deleteUserModel({ id });
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User  not found' });
+        }
+        res.status(200).json({ message: 'User  successfully deleted' });;
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        res.status(500).json({ message: 'Error deleting user' });
+    }
+};
+
+export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const database = req.body;
+    try {
+        const updatedUser = await userModel.updateUserModel(id, database);
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User  not found' });
+        }
+        res.json(updatedUser);
+    } catch (error) {
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Error updating user' });
+    }
+};

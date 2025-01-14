@@ -1,52 +1,69 @@
-import { data } from "../data.js";
+import { clientModel } from '../models/clientModel.js';
 
 export const getClients = async (req, res) => {
-    const users = data.users; 
-    const clients = data.client;
-
-    const userClients = clients.map(client => {
-        const user = users.find(r => r.id === client.user_id); 
-        return { ...client, user_id: user ? user.name : 'User  not found' }; 
-    });
-
-    res.json(userClients);
-}
-
-export const getClient  = async (req, res) => {
-    const { id } = req.params; 
-    const users = data.users; 
-    const clients = data.client;
-
-    const client = clients.find(c => c.id === id); 
-    if (!client) {
-        return res.status(404).json({ message: "Client not found" }); 
+    try {
+        const clients = await clientModel.getClientsModel();
+        res.json(clients);
+    } catch (error) {
+        console.error('Error fetching clients:', error);
+        res.status(500).json({ message: 'Error fetching clients' });
     }
+};
 
-    const user = users.find(r => r.id === client.user_id); 
-    const userClient = { ...client, user_id: user ? user.name : 'User  not found' }; 
 
-    res.json(userClient); 
-}
+export const getClient = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const client = await clientModel.getClientModel({ id });
+        if (!client || client.length === 0) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+        res.json(client[0]);
+    } catch (error) {
+        console.error('Error fetching client:', error);
+        res.status(500).json({ message: 'Error fetching client' });
+    }
+};
+
 
 export const createClient = async (req, res) => {
+    const database = req.body;
     try {
-        const clientData = req.body; 
-
-        const user = data.users.find(r => r.id === clientData.user_id); 
-        if (!user) {
-            return res.status(400).json({ message: "User  not found" });
-        }
-
-        const newClient = {
-            id: (data.client.length + 1).toString(), 
-            user_id: clientData.user_id,
-            type: clientData.type
-        };
-
-        data.client.push(newClient); 
-        return res.status(201).json(newClient); 
+        const newClient = await clientModel.createClientModel(database);
+        res.status(201).json(newClient[0]);
     } catch (error) {
-        console.log(error);
-        return res.status(500).json({ message: "Internal server error" });
+        console.error('Error creating client:', error);
+        res.status(500).json({ message: 'Error creating client' });
     }
-}
+};
+
+
+export const deleteClient = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deletedClient = await clientModel.deleteClientModel({ id });
+        if (!deletedClient || deletedClient.length === 0) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+        res.status(200).json({ message: 'Client  successfully deleted' });
+    } catch (error) {
+        console.error('Error deleting client:', error);
+        res.status(500).json({ message: 'Error deleting client' });
+    }
+};
+
+
+export const updateClient = async (req, res) => {
+    const { id } = req.params;
+    const database = req.body;
+    try {
+        const updatedClient = await clientModel.updateClientModel(id, database);
+        if (!updatedClient || updatedClient.length === 0) {
+            return res.status(404).json({ message: 'Client not found' });
+        }
+        res.json(updatedClient[0]);
+    } catch (error) {
+        console.error('Error updating client:', error);
+        res.status(500).json({ message: 'Error updating client' });
+    }
+};
