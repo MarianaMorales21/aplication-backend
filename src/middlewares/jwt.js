@@ -1,24 +1,33 @@
 import jwt from 'jsonwebtoken';
 
 export const verifyToken = (req, res, next) => {
-
-    let token = req.headers.authorization;
+    const token = req.cookies.token;
 
     if (!token) {
-        return res.status(401).send({ message: "No token provided" });
+        return res.status(401).json({ message: "No user is logged in" });
     }
-
-    token = token.split(" ")[1]
 
     try {
-
-        const { username } = jwt.verify(token, 'secret123');
-        req.username = username
+        const decoded = jwt.verify(token, process.env.PALABRASECRETA || 'secret123');
+        req.username = decoded.username;
         next();
     } catch (error) {
-        return res.status(400).send({ message: "Invalid token" });
-
+        console.error("Token verification error:", error);
+        return res.status(403).json({ message: "Invalid token" });
     }
-
-
+};
+/*{
+    "username": "Marisca",
+    "password": "marisca123"
 }
+{
+    "name": "Mariana Morales",
+    "username": "mariana123456",
+    "email": "park68835-th@huskrm.com",
+    "role": "Client",
+    "status": "Active",
+    "password": "mariana123456",
+    "address": "sdfsdf",
+    "phone": "04121617297",
+    "dni": "30781815"
+}*/

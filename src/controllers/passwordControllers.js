@@ -1,25 +1,31 @@
-// controllers/authController.js
 import jwt from 'jsonwebtoken';
-import { userModel } from '../models/passwordModel.js'; // Asegúrate de que este modelo esté correctamente implementado
+import { userModel } from '../models/passwordModel.js';
 import bcrypt from "bcryptjs";
+import { createAccesToken } from '../token.js';
 
 export const recover = async (req, res) => {
     const { dni, phone, email, username } = req.body;
 
-    // Buscar el usuario por sus credenciales
-    const user = await userModel.findUserByCredentials({ dni, phone, email, username });
-    if (!user) {
-        return res.status(404).send({ message: 'User  not found' });
+    try {
+        const user = await userModel.findUserByCredentials({ dni, phone, email, username });
+        if (!user) {
+            return res.status(404).send({ message: 'User  not found' });
+        }
+
+
+        const token = await createAccesToken({ userId: user.id });
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+        await userModel.storeResetToken(user.id, token, expiresAt);
+
+        res.status(200).send({
+            message: 'Generated token to reset password',
+            token
+        });
+    } catch (error) {
+        console.error("Error in recover:", error);
+        res.status(500).send({ message: 'Internal server error' });
     }
-
-    // Generar un token para el restablecimiento de contraseña
-    const token = jwt.sign({ userId: user.id }, process.env.PALABRASECRETA, { expiresIn: '10m' });
-
-    // Devolver el token al cliente
-    res.status(200).send({
-        message: 'Generated token to reset password',
-        token
-    });
 };
 
 export const resetpassword = async (req, res) => {
@@ -27,26 +33,33 @@ export const resetpassword = async (req, res) => {
     const { token } = req.params;
 
     try {
-        // Verificar el token
+
+        const tokenData = await userModel.findToken(token);
+        if (!tokenData) {
+            return res.status(400).send({ message: 'Invalid or expired token' });
+        }
+
+
         const decoded = jwt.verify(token, process.env.PALABRASECRETA);
         const userId = decoded.userId;
 
-        // Hashear la nueva contraseña
+
         const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-        // Actualizar la contraseña del usuario
+
         const updatedUser = await userModel.updatePassword(userId, hashedPassword);
         if (!updatedUser) {
             return res.status(404).send({ message: 'User  not found' });
         }
 
-        // Opcional: Aquí podrías eliminar el token de la base de datos si lo estás almacenando
+
+        await userModel.deleteToken(token);
 
         res.status(200).send({
             message: 'Password updated successfully'
         });
     } catch (error) {
-        // Manejo de errores más específico
+        console.error("Error in resetpassword:", error);
         if (error.name === 'JsonWebTokenError') {
             return res.status(400).send({ message: 'Invalid token' });
         } else if (error.name === 'TokenExpiredError') {

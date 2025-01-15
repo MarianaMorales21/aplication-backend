@@ -8,11 +8,12 @@ import flotaRoutes from "./src/routes/flotaRoutes.js"
 import authRoutes from "./src/routes/authRoutes.js"
 import dashboardRoutes from "./src/routes/dashboardRoutes.js"
 import passwordRoutes from "./src/routes/passwordRoutes.js"
-
+import cookieParser from 'cookie-parser';
 const app = express();
 
 app.use(morgan('dev'));
 app.use(express.json());
+app.use(cookieParser());
 app.use(usersRoutes);
 app.use(driversRoutes);
 app.use(clientRoutes);

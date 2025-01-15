@@ -1,31 +1,54 @@
-// models/passwordModel.js
 import { db } from '../database/connection.database.js';
 import bcrypt from 'bcryptjs';
 
-// Función para encontrar un usuario por sus credenciales
 const findUserByCredentials = async ({ dni, phone, email, username }) => {
     const query = {
         text: `SELECT * FROM users WHERE dni = $1 AND phone = $2 AND email = $3 AND username = $4`,
         values: [dni, phone, email, username]
     };
     const { rows } = await db.query(query);
-    return rows[0]; // Retornar el primer usuario encontrado o undefined si no hay coincidencias
+    return rows[0];
 };
 
-// Función para actualizar la contraseña del usuario
 const updatePassword = async (id, newPassword) => {
-    // Hashear la nueva contraseña
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
     const query = {
         text: `UPDATE users SET password = $1 WHERE id = $2 RETURNING *`,
-        values: [hashedPassword, id]
+        values: [newPassword, id]
     };
     const { rows } = await db.query(query);
-    return rows[0]; // Retornar el usuario actualizado o undefined si no se encontró
+    return rows[0];
 };
 
-// Exportar el modelo
+const storeResetToken = async (userId, token, expiresAt) => {
+    const query = {
+        text: `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) RETURNING *`,
+        values: [userId, token, expiresAt]
+    };
+    const { rows } = await db.query(query);
+    return rows[0];
+};
+
+const findToken = async (token) => {
+    const query = {
+        text: `SELECT * FROM password_reset_tokens WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP`,
+        values: [token]
+    };
+    const { rows } = await db.query(query);
+    return rows[0];
+};
+
+const deleteToken = async (token) => {
+    const query = {
+        text: `DELETE FROM password_reset_tokens WHERE token = $1`,
+        values: [token]
+    };
+    await db.query(query);
+};
+
 export const userModel = {
     findUserByCredentials,
     updatePassword,
+    storeResetToken,
+    findToken,
+    deleteToken,
 };
