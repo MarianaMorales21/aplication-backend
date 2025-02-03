@@ -1,8 +1,8 @@
-import { flotaModel } from '../models/flotaModel.js';
+import { fleetModel } from '../models/fleetModel.js';
 
 export const getTrucks = async (req, res) => {
     try {
-        const trucks = await flotaModel.getFlotasModel();
+        const trucks = await fleetModel.getFlotasModel();
         res.json(trucks);
     } catch (error) {
         console.error('Error fetching trucks:', error);
@@ -13,7 +13,7 @@ export const getTrucks = async (req, res) => {
 export const getTruck = async (req, res) => {
     const { id } = req.params;
     try {
-        const truck = await flotaModel.getFlotaModel({ id });
+        const truck = await fleetModel.getFlotaModel({ id });
         if (!truck || truck.length === 0) {
             return res.status(404).json({ message: 'Truck not found' });
         }
@@ -27,7 +27,7 @@ export const getTruck = async (req, res) => {
 export const createTruck = async (req, res) => {
     const database = req.body;
     try {
-        const newTruck = await flotaModel.createFlotaModel(database);
+        const newTruck = await fleetModel.createFlotaModel(database);
         res.status(201).json(newTruck[0]);
     } catch (error) {
         console.error('Error creating truck:', error);
@@ -38,7 +38,7 @@ export const createTruck = async (req, res) => {
 export const deleteTruck = async (req, res) => {
     const { id } = req.params;
     try {
-        const deletedTruck = await flotaModel.deleteFlotaModel({ id });
+        const deletedTruck = await fleetModel.deleteFlotaModel({ id });
         if (!deletedTruck || deletedTruck.length === 0) {
             return res.status(404).json({ message: 'Truck not found' });
         }
@@ -54,7 +54,7 @@ export const updateTruck = async (req, res) => {
     const { id } = req.params;
     const database = req.body;
     try {
-        const updatedTruck = await flotaModel.updateFlotaModel(id, database);
+        const updatedTruck = await fleetModel.updateFlotaModel(id, database);
         if (!updatedTruck || updatedTruck.length === 0) {
             return res.status(404).json({ message: 'Truck not found' });
         }

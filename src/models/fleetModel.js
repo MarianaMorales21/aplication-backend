@@ -52,7 +52,7 @@ const deleteFlotaModel = async ({ id }) => {
     return rows
 }
 
-export const flotaModel = {
+export const fleetModel = {
     getFlotaModel,
     getFlotasModel,
     deleteFlotaModel,

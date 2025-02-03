@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getTrucks, getTruck, createTruck, deleteTruck, updateTruck } from "../controllers/flotaControllers.js";
+import { getTrucks, getTruck, createTruck, deleteTruck, updateTruck } from "../controllers/fleetControllers.js";
 
 const router = Router();
 
