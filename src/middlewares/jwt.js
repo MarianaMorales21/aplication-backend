@@ -10,12 +10,37 @@ export const verifyToken = (req, res, next) => {
     try {
         const decoded = jwt.verify(token, process.env.PALABRASECRETA || 'secret123');
         req.username = decoded.username;
+        req.role = decoded.role;
         next();
     } catch (error) {
         console.error("Token verification error:", error);
         return res.status(403).json({ message: "Invalid token" });
     }
 };
+
+export const verifyAdmin = (req, res, next) => {
+    if (req.role === "Administrator") {
+        return next();
+    }
+
+    return res.status(403).json({ error: "Unauthorized, only admin users are allowed" });
+};
+
+export const verifyDriver = (req, res, next) => {
+    if (req.role === "Driver" || req.role === "Administrator") {
+        return next();
+    }
+    return res.status(403).json({ error: "Unauthorized, only driver or administrator users are allowed" });
+};
+
+export const verifyClient = (req, res, next) => {
+    if (req.role === "Client" || req.role === "Administrator") {
+        return next();
+    }
+
+    return res.status(403).json({ error: "Unauthorized, only client or administrator users are allowed" });
+};
+
 /*{
     "username": "Marisca",
     "password": "marisca123"

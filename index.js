@@ -8,6 +8,10 @@ import fleetRoutes from "./src/routes/fleetRoutes.js"
 import authRoutes from "./src/routes/authRoutes.js"
 import dashboardRoutes from "./src/routes/dashboardRoutes.js"
 import passwordRoutes from "./src/routes/passwordRoutes.js"
+import materialRoutes from "./src/routes/materialRoutes.js"
+import orderRoutes from "./src/routes/orderRoutes.js"
+import schedulesRoutes from "./src/routes/WorkingHoursRoutes.js"
+import invoiceRoutes from "./src/routes/invoiceRoutes.js"
 import cookieParser from 'cookie-parser';
 const app = express();
 
@@ -21,6 +25,10 @@ app.use(fleetRoutes);
 app.use(authRoutes);
 app.use(dashboardRoutes);
 app.use(passwordRoutes);
+app.use(materialRoutes);
+app.use(orderRoutes);
+app.use(schedulesRoutes);
+app.use(invoiceRoutes);
 app.listen(port);
 
 
