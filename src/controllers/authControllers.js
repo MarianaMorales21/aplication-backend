@@ -25,6 +25,13 @@ export const register = async (req, res) => {
 
         const token = await createAccesToken({ username: newUser.username });
 
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
         res.status(201).json({ token });
     } catch (error) {
         console.error("Internal server error:", error);
@@ -47,9 +54,17 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        const token = await createAccesToken({ username: existingUser.username });
+        // Aquí incluimos el role en el token
+        const token = await createAccesToken({
+            username: existingUser.username,
+            role: existingUser.role // Asegúrate de incluir el rol aquí
+        });
 
-        res.cookie('token', token);
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000 // 1 día
+        });
 
         res.status(200).json({
             id: existingUser.id,
@@ -94,6 +109,7 @@ export const profile = async (req, res) => {
         });
     }
 };
+
 export const logout = async (req, res) => {
     try {
         const token = req.cookies.token;
@@ -110,7 +126,9 @@ export const logout = async (req, res) => {
     }
 };
 
-
-
-
-
+/*
+{
+    "username": "adrian123",
+    "password": "mariana123"
+}
+*/

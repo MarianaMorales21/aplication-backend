@@ -1,70 +1,65 @@
-import jwt from 'jsonwebtoken';
-import { userModel } from '../models/passwordModel.js';
-import bcrypt from "bcryptjs";
-import { createAccesToken } from '../token.js';
+import { passwordModel } from '../models/passwordModel.js';
+import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
-export const recover = async (req, res) => {
-    const { dni, phone, email, username } = req.body;
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASSWORD,
+    },
+});
+
+export const requestPasswordReset = async (req, res) => {
+    const { email } = req.body;
 
     try {
-        const user = await userModel.findUserByCredentials({ dni, phone, email, username });
+        const user = await passwordModel.getUserByEmailModel(email);
         if (!user) {
-            return res.status(404).send({ message: 'User  not found' });
+            return res.status(404).send('Usuario no encontrado');
         }
 
+        const resetToken = crypto.randomBytes(32).toString('hex');
+        await passwordModel.createResetTokenModel(user.id, resetToken);
 
-        const token = await createAccesToken({ userId: user.id });
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+        const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
 
-        await userModel.storeResetToken(user.id, token, expiresAt);
+        const mailOptions = {
+            from: process.env.EMAIL,
+            to: email,
+            subject: 'Restablecimiento de Contraseña',
+            text: `Haga clic en el siguiente enlace para restablecer su contraseña: ${resetLink}`,
+        };
 
-        res.status(200).send({
-            message: 'Generated token to reset password',
-            token
-        });
+        await transporter.sendMail(mailOptions);
+
+        res.send('Se ha enviado un enlace de recuperación a tu correo electrónico.');
     } catch (error) {
-        console.error("Error in recover:", error);
-        res.status(500).send({ message: 'Internal server error' });
+        console.error(error);
+        res.status(500).send('Error al procesar la solicitud.');
     }
 };
 
-export const resetpassword = async (req, res) => {
-    const { newPassword } = req.body;
-    const { token } = req.params;
+export const resetPassword = async (req, res) => {
+    const { token, newPassword } = req.body;
 
     try {
-
-        const tokenData = await userModel.findToken(token);
-        if (!tokenData) {
-            return res.status(400).send({ message: 'Invalid or expired token' });
+        const resetTokenData = await passwordModel.getResetTokenModel(token);
+        if (!resetTokenData) {
+            return res.status(400).send('Token inválido o expirado');
         }
 
-
-        const decoded = jwt.verify(token, process.env.PALABRASECRETA);
-        const userId = decoded.userId;
-
-
-        const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-
-        const updatedUser = await userModel.updatePassword(userId, hashedPassword);
-        if (!updatedUser) {
-            return res.status(404).send({ message: 'User  not found' });
+        const user = await passwordModel.getUserByIdModel(resetTokenData.user_id);
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado');
         }
 
+        await passwordModel.resetUserPasswordModel(user.email, newPassword);
+        await passwordModel.deleteResetTokenModel(token);
 
-        await userModel.deleteToken(token);
-
-        res.status(200).send({
-            message: 'Password updated successfully'
-        });
+        res.send('Contraseña restablecida con éxito.');
     } catch (error) {
-        console.error("Error in resetpassword:", error);
-        if (error.name === 'JsonWebTokenError') {
-            return res.status(400).send({ message: 'Invalid token' });
-        } else if (error.name === 'TokenExpiredError') {
-            return res.status(400).send({ message: 'Token expired' });
-        }
-        res.status(500).send({ message: 'Internal server error' });
+        console.error(error);
+        res.status(500).send('Error al restablecer la contraseña.');
     }
 };

@@ -1,54 +1,74 @@
 import { db } from '../database/connection.database.js';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcrypt';
 
-const findUserByCredentials = async ({ dni, phone, email, username }) => {
+const getUserByEmailModel = async (email) => {
     const query = {
-        text: `SELECT * FROM users WHERE dni = $1 AND phone = $2 AND email = $3 AND username = $4`,
-        values: [dni, phone, email, username]
+        text: `SELECT * FROM users WHERE email = $1`,
+        values: [email]
     };
     const { rows } = await db.query(query);
     return rows[0];
 };
 
-const updatePassword = async (id, newPassword) => {
+const getUserByIdModel = async (id) => {
     const query = {
-        text: `UPDATE users SET password = $1 WHERE id = $2 RETURNING *`,
-        values: [newPassword, id]
+        text: `SELECT * FROM users WHERE id = $1`,
+        values: [id]
     };
     const { rows } = await db.query(query);
     return rows[0];
 };
 
-const storeResetToken = async (userId, token, expiresAt) => {
+const resetUserPasswordModel = async (email, newPassword) => {
+    if (!email || !newPassword) {
+        throw new Error('Email y nueva contraseña son requeridos');
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     const query = {
-        text: `INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES ($1, $2, $3) RETURNING *`,
-        values: [userId, token, expiresAt]
+        text: `UPDATE users SET password = $1 WHERE email = $2 RETURNING *`,
+        values: [hashedPassword, email]
     };
     const { rows } = await db.query(query);
     return rows[0];
 };
 
-const findToken = async (token) => {
+const getResetTokenModel = async (token) => {
     const query = {
-        text: `SELECT * FROM password_reset_tokens WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP`,
+        text: `SELECT * FROM password_reset_tokens WHERE reset_token = $1`,
         values: [token]
     };
     const { rows } = await db.query(query);
     return rows[0];
 };
 
-const deleteToken = async (token) => {
+const createResetTokenModel = async (userId, resetToken) => {
+    if (!userId || !resetToken) {
+        throw new Error('User  ID y resetToken son requeridos');
+    }
     const query = {
-        text: `DELETE FROM password_reset_tokens WHERE token = $1`,
+        text: `INSERT INTO password_reset_tokens (user_id, reset_token) VALUES ($1, $2) RETURNING *`,
+        values: [userId, resetToken]
+    };
+    const { rows } = await db.query(query);
+    return rows[0];
+};
+
+const deleteResetTokenModel = async (token) => {
+    if (!token) {
+        throw new Error('Token es requerido');
+    }
+    const query = {
+        text: `DELETE FROM password_reset_tokens WHERE reset_token = $1`,
         values: [token]
     };
     await db.query(query);
 };
 
-export const userModel = {
-    findUserByCredentials,
-    updatePassword,
-    storeResetToken,
-    findToken,
-    deleteToken,
+export const passwordModel = {
+    getUserByEmailModel,
+    getUserByIdModel,
+    resetUserPasswordModel,
+    getResetTokenModel,
+    createResetTokenModel,
+    deleteResetTokenModel,
 };

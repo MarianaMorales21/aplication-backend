@@ -1,4 +1,5 @@
 import { userModel } from '../models/userModel.js';
+import bcrypt from 'bcrypt';
 
 export const getUsers = async (req, res) => {
     try {
@@ -25,9 +26,11 @@ export const getUser = async (req, res) => {
 };
 
 export const createUser = async (req, res) => {
-    const database = req.body;
+    const { password, ...otherData } = req.body;
     try {
-        const newUser = await userModel.createUserModel(database);
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = await userModel.createUserModel({ ...otherData, password: hashedPassword });
         res.status(201).json(newUser);
     } catch (error) {
         console.error('Error creating user:', error);
@@ -42,7 +45,7 @@ export const deleteUsers = async (req, res) => {
         if (!deletedUser) {
             return res.status(404).json({ message: 'User  not found' });
         }
-        res.status(200).json({ message: 'User  successfully deleted' });;
+        res.status(200).json({ message: 'User  successfully deleted' });
     } catch (error) {
         console.error('Error deleting user:', error);
         res.status(500).json({ message: 'Error deleting user' });
@@ -51,9 +54,18 @@ export const deleteUsers = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const database = req.body;
+    const { password, ...otherData } = req.body;
     try {
-        const updatedUser = await userModel.updateUserModel(id, database);
+        let updatedUser;
+
+        if (password) {
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            updatedUser = await userModel.updateUserModel(id, { ...otherData, password: hashedPassword });
+        } else {
+            updatedUser = await userModel.updateUserModel(id, otherData);
+        }
+
         if (!updatedUser) {
             return res.status(404).json({ message: 'User  not found' });
         }

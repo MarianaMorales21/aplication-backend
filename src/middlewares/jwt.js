@@ -19,6 +19,7 @@ export const verifyToken = (req, res, next) => {
 };
 
 export const verifyAdmin = (req, res, next) => {
+    console.log("USER ROLE:", req.role);
     if (req.role === "Administrator") {
         return next();
     }

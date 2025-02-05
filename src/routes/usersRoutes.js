@@ -8,7 +8,8 @@ import {
 } from "../controllers/usersControllers.js";
 
 export const router = Router();
-import { verifyAdmin } from '../middlewares/jwt.js';
+import { verifyAdmin, verifyToken } from '../middlewares/jwt.js';
+router.use(verifyToken);
 
 router.get("/users", verifyAdmin, getUsers);
 router.get("/users/:id", verifyAdmin, getUser);
