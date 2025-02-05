@@ -22,13 +22,13 @@ export const requestPasswordReset = async (req, res) => {
         const resetToken = crypto.randomBytes(32).toString('hex');
         await passwordModel.createResetTokenModel(user.id, resetToken);
 
-        const resetLink = `http://localhost:8080/reset-password?token=${resetToken}`;
+        const resetLink = `http://localhost:3000/forgotpassword`;
 
         const mailOptions = {
             from: process.env.EMAIL,
             to: email,
             subject: 'Restablecimiento de Contraseña',
-            text: `Haga clic en el siguiente enlace para restablecer su contraseña: ${resetLink}`,
+            text: `Haga clic en el siguiente enlace para restablecer su contraseña: ${resetLink}, token=${resetToken}`,
         };
 
         await transporter.sendMail(mailOptions);

@@ -40,11 +40,12 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-    const { username, password } = req.body; // Asegúrate de que estás extrayendo correctamente los datos del cuerpo
+    const { username, password } = req.body;
 
     try {
         const existingUser = await auth.getUsernameModel(username);
         if (!existingUser) {
+            console.log("User  not found:", username);
             return res.status(400).json({ message: "Invalid username" });
         }
 
@@ -53,14 +54,35 @@ export const login = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
-        // Generar y devolver el token
-        const token = await createAccesToken({ username: existingUser.username });
-        res.status(200).json({ token, user: existingUser });
+
+        const token = await createAccesToken({
+            username: existingUser.username,
+            role: existingUser.role
+        });
+
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 24 * 60 * 60 * 1000
+        });
+
+        res.status(200).json({
+            id: existingUser.id,
+            username: existingUser.username,
+            name: existingUser.name,
+            email: existingUser.email,
+            phone: existingUser.phone,
+            role: existingUser.role,
+            status: existingUser.status,
+            address: existingUser.address,
+        });
     } catch (error) {
         console.error("Internal server error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+
 export const profile = async (req, res) => {
     try {
         const existingUser = await auth.getUsernameModel(req.username);
@@ -107,6 +129,6 @@ export const logout = async (req, res) => {
 /*
 {
     "username": "adrian123",
-    "password": "mariana123"
+    "password": "mariana12"
 }
 */
