@@ -24,6 +24,7 @@ const app = express();
 app.use(cors({
     origin: '*',
     credentials: true,
+    methods: 'GET, PUT POST, DELETE, HEAD, PATCH'
 }));
 
 app.use(morgan('dev'));
