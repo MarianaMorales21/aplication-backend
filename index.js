@@ -22,9 +22,9 @@ const app = express();
 
 
 app.use(cors({
-    origin: 'https://rad-sunflower-947683.netlify.app/',
+    origin: 'https://singular-khapse-a23198.netlify.app',
     credentials: true,
-    methods: 'GET, PUT POST, DELETE, HEAD, PATCH'
+    methods: 'GET, PUT, POST, DELETE, HEAD, PATCH'
 }));
 
 app.use(morgan('dev'));
