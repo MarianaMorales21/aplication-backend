@@ -10,6 +10,16 @@ export const getTrucks = async (req, res) => {
     }
 };
 
+export const getModel = async (req, res) => {
+    try {
+        const model = await fleetModel.getModelModel();
+        res.json(model);
+    } catch (error) {
+        console.error('Error fetching trucks:', error);
+        res.status(500).json({ message: 'Error fetching trucks' });
+    }
+};
+
 export const getTruck = async (req, res) => {
     const { id } = req.params;
     try {

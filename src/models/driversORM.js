@@ -6,6 +6,7 @@ import User from './usersORM.js';
 const Driver = sequelize.define('Driver', {
     id: {
         type: DataTypes.INTEGER,
+        autoIncrement: true,
         primaryKey: true,
         allowNull: false,
     },

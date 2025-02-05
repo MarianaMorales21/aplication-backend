@@ -1,5 +1,14 @@
 import { db } from '../database/connection.database.js';
 
+const getDaysModel = async () => {
+    const query = {
+        text: `SELECT * FROM day`,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows;
+};
+
 const getDriverSchedulesModel = async () => {
     const query = {
         text: `SELECT * FROM driver_schedule`,
@@ -18,26 +27,26 @@ const getDriverScheduleModel = async (id) => {
     return rows;
 };
 
-const createDriverScheduleModel = async ({ id, entry_time, exit_time, day_id, driver_id, schedule_id }) => {
+const createDriverScheduleModel = async ({ entry_time, exit_time, day_id, driver_id }) => {
     const query = {
         text: `
-        INSERT INTO driver_schedule (id, entry_time, exit_time, day_id, driver_id, schedule_id) 
-        VALUES ($1, $2, $3, $4, $5, $6) 
+        INSERT INTO driver_schedule (entry_time, exit_time, day_id, driver_id) 
+        VALUES ($1, $2, $3, $4) 
         RETURNING *`,
-        values: [id, entry_time, exit_time, day_id, driver_id, schedule_id]
+        values: [entry_time, exit_time, day_id, driver_id]
     };
     const { rows } = await db.query(query);
     return rows;
 };
 
-const updateDriverScheduleModel = async (id, { entry_time, exit_time, day_id, driver_id, schedule_id }) => {
+const updateDriverScheduleModel = async (id, { entry_time, exit_time, day_id, driver_id }) => {
     const query = {
         text: `
         UPDATE driver_schedule 
-        SET entry_time = $1, exit_time = $2, day_id = $3, driver_id = $4, schedule_id = $5 
-        WHERE id = $6 
+        SET entry_time = $1, exit_time = $2, day_id = $3, driver_id = $4
+        WHERE id = $5 
         RETURNING *`,
-        values: [entry_time, exit_time, day_id, driver_id, schedule_id, id]
+        values: [entry_time, exit_time, day_id, driver_id, id]
     };
     const { rows } = await db.query(query);
     return rows;
@@ -57,5 +66,6 @@ export const driverScheduleModel = {
     getDriverScheduleModel,
     createDriverScheduleModel,
     updateDriverScheduleModel,
-    deleteDriverScheduleModel
+    deleteDriverScheduleModel,
+    getDaysModel,
 };

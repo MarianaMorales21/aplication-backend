@@ -4,15 +4,16 @@ import {
     getBill,
     createBill,
     updateBill,
-    deleteBill
+    deleteBill,
+    getPayment
 } from '../controllers/invoiceControllers.js';
 import { verifyClient, verifyAdmin } from '../middlewares/jwt.js';
 const router = express.Router();
-
-router.get('/bills', verifyAdmin, getBills);
-router.get('/bills/:id', verifyClient, getBill);
-router.post('/bills', verifyAdmin, createBill);
-router.put('/bills/:id', verifyAdmin, updateBill);
-router.delete('/bills/:id', verifyAdmin, deleteBill);
+router.get('/payment_method', getPayment);
+router.get('/bills', getBills);
+router.get('/bills/:id', getBill);
+router.post('/bills', createBill);
+router.put('/bills/:id', updateBill);
+router.delete('/bills/:id', deleteBill);
 
 export default router;

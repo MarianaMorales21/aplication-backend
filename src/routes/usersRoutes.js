@@ -9,12 +9,12 @@ import {
 
 export const router = Router();
 import { verifyAdmin, verifyToken } from '../middlewares/jwt.js';
-router.use(verifyToken);
 
-router.get("/users", verifyAdmin, getUsers);
-router.get("/users/:id", verifyAdmin, getUser);
-router.post("/users", verifyAdmin, createUser);
-router.put("/users/:id", verifyAdmin, updateUser);
-router.delete("/users/:id", verifyAdmin, deleteUsers);
+
+router.get("/users", getUsers);
+router.get("/users/:id", getUser);
+router.post("/users", createUser);
+router.put("/users/:id", updateUser);
+router.delete("/users/:id", deleteUsers);
 
 export default router;

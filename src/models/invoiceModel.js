@@ -1,5 +1,15 @@
 import { db } from '../database/connection.database.js';
 
+const getMethodModel = async () => {
+    const query = {
+        text: `SELECT * FROM payment_method`,
+        values: []
+    };
+    const { rows } = await db.query(query);
+    return rows;
+};
+
+
 const getBillsModel = async () => {
     const query = {
         text: `SELECT * FROM bills`,
@@ -57,5 +67,6 @@ export const paymentModel = {
     getBillModel,
     createBillModel,
     updateBillModel,
-    deleteBillModel
+    deleteBillModel,
+    getMethodModel
 };

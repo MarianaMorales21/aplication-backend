@@ -1,5 +1,27 @@
 import { driverScheduleModel } from '../models/WorkingHoursModels.js';
 
+export const getDays = async (req, res) => {
+    try {
+        const days = await driverScheduleModel.getDaysModel();
+        res.json(days);
+    } catch (error) {
+        console.error('Error fetching days:', error);
+        res.status(500).json({ message: 'Error fetching days' });
+    }
+};
+
+export const getSchedules = async (req, res) => {
+    try {
+        const schedules = await driverScheduleModel.getSchedulesModel();
+        res.json(schedules);
+    } catch (error) {
+        console.error('Error fetching schedules:', error);
+        res.status(500).json({ message: 'Error fetching schedules' });
+    }
+};
+
+
+
 export const getDriverSchedules = async (req, res) => {
     try {
         const schedules = await driverScheduleModel.getDriverSchedulesModel();
@@ -25,9 +47,9 @@ export const getDriverSchedule = async (req, res) => {
 };
 
 export const createDriverSchedule = async (req, res) => {
-    const { id, entry_time, exit_time, day_id, driver_id, schedule_id } = req.body;
+    const { id, entry_time, exit_time, day_id, driver_id } = req.body;
     try {
-        const newSchedule = await driverScheduleModel.createDriverScheduleModel({ id, entry_time, exit_time, day_id, driver_id, schedule_id });
+        const newSchedule = await driverScheduleModel.createDriverScheduleModel({ id, entry_time, exit_time, day_id, driver_id });
         res.status(201).json(newSchedule);
     } catch (error) {
         console.error('Error creating driver schedule:', error);

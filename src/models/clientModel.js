@@ -25,8 +25,8 @@ const getClientModel = async ({ id }) => {
 const createClientModel = async ({ id, type, user_id }) => {
     const query = {
         text: `
-        INSERT INTO client (id, type, user_id ) VALUES ($1,$2,$3) RETURNING *`,
-        values: [id, type, user_id]
+        INSERT INTO client (type, user_id ) VALUES ($1,$2) RETURNING *`,
+        values: [type, user_id]
     }
     const { rows } = await db.query(query)
     return rows

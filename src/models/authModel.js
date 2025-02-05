@@ -1,5 +1,6 @@
 import { db } from '../database/connection.database.js';
 
+
 const userExistsModel = async (username) => {
     const query = {
         text: `SELECT * FROM users WHERE username = $1`,

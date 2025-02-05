@@ -10,6 +10,16 @@ const getFlotasModel = async () => {
     return rows
 }
 
+const getModelModel = async () => {
+    const query = {
+        text: `
+       SELECT * FROM model`,
+        values: []
+    }
+    const { rows } = await db.query(query)
+    return rows
+}
+
 
 const getFlotaModel = async ({ id }) => {
     const query = {
@@ -58,4 +68,5 @@ export const fleetModel = {
     deleteFlotaModel,
     createFlotaModel,
     updateFlotaModel,
+    getModelModel,
 }
