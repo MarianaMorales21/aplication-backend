@@ -22,7 +22,7 @@ const app = express();
 
 
 app.use(cors({
-    origin: '*',
+    origin: 'https://rad-sunflower-947683.netlify.app/',
     credentials: true,
     methods: 'GET, PUT POST, DELETE, HEAD, PATCH'
 }));
