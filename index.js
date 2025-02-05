@@ -12,6 +12,9 @@ import materialRoutes from "./src/routes/materialRoutes.js"
 import orderRoutes from "./src/routes/orderRoutes.js"
 import schedulesRoutes from "./src/routes/WorkingHoursRoutes.js"
 import invoiceRoutes from "./src/routes/invoiceRoutes.js"
+import userORMRoutes from "./src/routes/ORMusers.js"
+import driverORMRoutes from "./src/routes/ORMdrivers.js"
+import driverusersORM from "./src/routes/driverUserORM.js"
 import cookieParser from 'cookie-parser';
 const app = express();
 
@@ -19,10 +22,13 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(usersRoutes);
+app.use(userORMRoutes);
 app.use(driversRoutes);
+app.use(driverORMRoutes);
 app.use(clientRoutes);
 app.use(fleetRoutes);
 app.use(authRoutes);
+app.use(driverusersORM);
 app.use(dashboardRoutes);
 app.use(passwordRoutes);
 app.use(materialRoutes);
